@@ -1,7 +1,8 @@
 {
-  "name": "Finaças pro",
+  "name": "Finanças Pro",
   "short_name": "Finanças",
-  "description": "aplicativo de finanças.",
+  "id": "/Financas/",
+  "description": "Aplicativo de finanças pessoais.",
   "start_url": "/Financas/index.html",
   "scope": "/Financas/",
   "display": "standalone",
