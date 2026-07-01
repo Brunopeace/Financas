@@ -1,25 +1,42 @@
-const CACHE_NAME = 'clientes-cache-v1';
-const urlsToCache = [
-  '/',
-  '/css/estilo.css',
-  '/manifest.json',
-  // adicione outros recursos que deseja armazenar em cache
+const CACHE_NAME = 'financas-pro-v1';
+const ASSETS = [
+  'index.html',
+  'manifest.json',
+  'img/icon-512.png',
+  'img/icon-192.png',
+  'https://cdn.tailwindcss.com',
+  'https://unpkg.com/lucide@latest'
 ];
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
+// Instala e armazena os arquivos cruciais no dispositivo
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS);
+    })
   );
 });
 
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        return response || fetch(event.request);
-      })
+// Ativa e limpa caches antigos se houver atualização
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      );
+    })
+  );
+});
+
+// Serve os arquivos direto do cache do celular
+self.addEventListener('fetch', (e) => {
+  e.respondWith(
+    caches.match(e.request).then((cachedResponse) => {
+      return cachedResponse || fetch(e.request);
+    })
   );
 });
