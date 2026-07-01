@@ -1,7 +1,7 @@
 {
   "name": "Finaças pro",
   "short_name": "Finanças",
-  "description": "Gerenciador offline de parcelas com salvamento local.",
+  "description": "aplicativo de finanças.",
   "start_url": "/Financas/index.html",
   "scope": "/Financas/",
   "display": "standalone",
