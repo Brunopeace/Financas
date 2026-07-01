@@ -1,9 +1,10 @@
-const CACHE_NAME = 'financas-pro-v2';
+const CACHE_NAME = 'financas-pro-v3';
 const ASSETS = [
-  'index.html',
-  'manifest.json',
-  'img/icon-512.png',
-  'img/icon-192.png',
+  '/Financas/',
+  '/Financas/index.html',
+  '/Financas/manifest.json',
+  '/Financas/img/icon-512.png',
+  '/Financas/img/icon-192.png',
   'https://cdn.tailwindcss.com',
   'https://unpkg.com/lucide@latest'
 ];
