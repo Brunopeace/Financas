@@ -2,190 +2,261 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="img/icon512.png">
-    <title>Gerenciador de clientes</title>
-    <link rel="stylesheet" type="text/css" href="css/estilo.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Finanças Pro</title>
+    
     <link rel="manifest" href="manifest.json">
-    
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-.overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.95);
-  color: #fff;
-  display: flex; align-items: center; justify-content: center;
-  text-align: center;
-  z-index: 9999;
-}
-
-.overlay-content {
-  background: #1e1e1e;
-  padding: 30px;
-  border-radius: 12px;
-  max-width: 400px;
-  width: 90%;
-  box-shadow: 0 0 15px rgba(255,255,255,0.3);
-}
-
-.overlay-content h2 {
-  margin-bottom: 15px;
-  font-size: 22px;
-}
-
-.overlay-content p {
-  margin-bottom: 20px;
-  font-size: 16px;
-}
-
-#btnWhatsApp {
-  background: #25d366;
-  border: none;
-  padding: 12px 20px;
-  color: white;
-  font-size: 16px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-#btnWhatsApp:hover {
-  background: #20b954;
-}
-</style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .scroll-customizado::-webkit-scrollbar { width: 5px; }
+        .scroll-customizado::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.01); border-radius: 10px; }
+        .scroll-customizado::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+        .scroll-customizado::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.4); }
+    </style>
 </head>
-<body>
-    
-    <!-- 🔒 Tela de bloqueio -->
-<div id="trialOverlay" class="overlay" style="display:none;">
-  <div class="overlay-content">
-    <h2>⚠️ Período de teste expirado</h2>
-    <p>Seu acesso terminou.<br>
-       Para renovar, fale com o administrador.</p>
-    <button id="btnWhatsApp">📲 Falar no WhatsApp</button>
-  </div>
-</div>
-    
-    <img id="logo" src="img/logo-padrao.png" alt="Logomarca" class="logo">
+<body class="text-slate-100 min-h-screen flex justify-center antialiased">
 
-<h1><strong>Painel de vencimento</strong></h1>
-    
-    <button id="backToTop" title="Voltar ao Topo">
+    <main class="w-full max-w-md min-h-screen flex flex-col justify-between p-4 pb-44">
+        <header class="flex justify-between items-center my-4">
+            <div>
+                <p class="text-xs text-slate-400 font-medium tracking-wider uppercase">Meu Balanço</p>
+                <h1 class="text-xl font-bold text-white tracking-tight">Finanças Pro</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <select id="filtro-mes-ano" onchange="atualizarInterface()" class="bg-white/5 border border-white/10 rounded-xl px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 cursor-pointer"></select>
+                <button onclick="limparTudo()" class="p-2 rounded-full bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-all active:scale-95"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            </div>
+        </header>
 
-<button onclick="toggleDarkMode()" class="meio" class="slide-in">Claro Escuro</button><button id="backup" onclick="exportarClientes()">Backup Clientes</button><br><br>
-
-    <div class="input-container slide-in">
-<input type="file" id="importarClientes" style="display: none;"/>
-<label for="importarClientes" class="button">Importar Backup <img src="img/diskette.png" class="diskette"></label><br>
-        <label for="inputPesquisar">Pesquisar Cliente <img src="img/lupa.png" class="lupa"></label>
-        <input type="text" id="inputPesquisar" oninput="pesquisarCliente()" placeholder="Pesquisar cliente">
-    </div>
-
-    <div class="input-container slide-in">
-        <label for="inputNome">Adicionar cliente aqui<img src="img/face.png" class="face"></label>
-        <input type="text" id="inputNome" required placeholder="Nome do cliente">
-    </div>
-    
-    <div class="input-container slide-in">
-        <label for="inputTelefone">Telefone do cliente <img src="img/cell.png" class="cell"></label>
-        <input type="tel" id="inputTelefone" required placeholder="Telefone do cliente">
-    </div>
-    
-    <div class="input-container slide-in">
-        <label for="inputData">Data de vencimento <img src="img/calendario.png" class="calendario"></label>
-        <input type="date" id="inputData" required>
-    </div>
-    
-    <button id="btnExcluirSelecionados" onclick="excluirClientesSelecionados()">Excluir Seleção</button><button onclick="adicionarCliente()" class="slide-in">Adicionar Cliente</button><br><br>
-    
-  <div id="feedback" style="display: none;"></div>
-<div id="infoClientes2" class="slide-in"></div><br>
-    <div id="infoClientes" class="slide-in"></div>
-    <div class="table-container slide-in">
-           
-<br>
-<button id="toggleLixeira" onclick="alternarLixeira()">Abrir Lixeira</button>
-<br>
-<div id="containerLixeira" style="display: none;">
-    <div id="quantidadeClientesLixeira"></div>
-    
-    <div id="lixeira">
-    <div id="feedbackR" style="display: none;"></div>
-        <button id="restaurarSelecionados" onclick="restaurarSelecionados()">Restaurar /Sel</button>
-        <button id="esvaziarLixeira" onclick="esvaziarLixeira()">Esvaziar Lixeira</button>
-        <input type="text" id="pesquisarLixeira" placeholder="Pesquisar na lixeira" oninput="pesquisarClientesLixeira()">
-        <table id="tabelaLixeira">
-            <thead>
-                <tr>
-                    <th>
-    
-<input type="checkbox" id="selecionarTodos" onclick="toggleSelecionarTodos(this)">
-
-                    </th>
-                </tr>
-            </thead>
+        <div class="glass-card rounded-3xl p-6 mb-6 shadow-xl relative overflow-hidden">
+            <div class="absolute -right-8 -top-8 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl"></div>
+            <p class="text-sm text-slate-400 font-medium mb-1">Sobrou no mês selecionado</p>
+            <h2 id="saldo-total" class="text-3xl font-extrabold text-white tracking-tight mb-4">R$ 0,00</h2>
             
-            <tbody id="clientList">
-                <!-- Clientes da lixeira serão carregados aqui -->
-            </tbody>
-        </table>
+            <div class="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
+                <div class="flex items-center gap-2">
+                    <div class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400"><i data-lucide="arrow-up-right" class="w-4 h-4"></i></div>
+                    <div>
+                        <p class="text-[11px] text-slate-400 uppercase tracking-wider">Entradas</p>
+                        <p id="total-entradas" class="text-sm font-semibold text-emerald-400">R$ 0,00</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="p-2 rounded-xl bg-rose-500/10 text-rose-400"><i data-lucide="arrow-down-left" class="w-4 h-4"></i></div>
+                    <div>
+                        <p class="text-[11px] text-slate-400 uppercase tracking-wider">Saídas</p>
+                        <p id="total-saidas" class="text-sm font-semibold text-rose-400">R$ 0,00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1 flex flex-col min-h-0">
+            <h3 class="text-sm font-semibold text-slate-300 mb-3 px-1 flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4 text-indigo-400"></i> Movimentações do Mês</h3>
+            <div id="lista-transacoes" class="flex-1 overflow-y-auto space-y-3 pr-2 scroll-customizado max-h-[42vh]"></div>
+        </div>
+    </main>
+
+    <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto px-4 pb-4 pt-3 bg-slate-950/90 backdrop-blur-lg border-t border-white/5 rounded-t-3xl shadow-2xl z-50">
+        <form id="form-transacao" class="space-y-2.5" onsubmit="adicionarTransacao(event)">
+            <div class="flex gap-2">
+                <input type="text" id="descricao" required placeholder="Ex: Salário, Mercado..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+                <input type="number" id="valor" step="0.01" required placeholder="R$ 0,00" class="w-28 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder-slate-500 text-right focus:outline-none focus:border-indigo-500">
+            </div>
+            <div class="flex gap-2">
+                <select id="tipo" onchange="alternarCategorias()" class="bg-white/5 border border-white/10 rounded-xl px-2 py-2.5 text-sm text-slate-300 focus:outline-none focus:border-indigo-500 cursor-pointer">
+                    <option value="entrada" class="bg-slate-900 text-emerald-400">➕ Entrada</option>
+                    <option value="saida" class="bg-slate-900 text-rose-400" selected>➖ Saída</option>
+                </select>
+                <select id="categoria" class="flex-1 bg-white/5 border border-white/10 rounded-xl px-2 py-2.5 text-sm text-slate-300 focus:outline-none focus:border-indigo-500 cursor-pointer">
+                    <option value="moradia" class="bg-slate-900">🏠 Moradia (Aluguel, Energia)</option>
+                    <option value="mercado" class="bg-slate-900">🛒 Mercado / Alimentação</option>
+                    <option value="transporte" class="bg-slate-900">🚗 Transporte (Combustível, Uber)</option>
+                    <option value="lazer" class="bg-slate-900">🍿 Lazer / Restaurantes</option>
+                    <option value="outros" class="bg-slate-900">✨ Outros</option>
+                </select>
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] transition-all text-white font-medium text-sm rounded-xl py-2.5 flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20">
+                <i data-lucide="plus" class="w-4 h-4"></i> Adicionar Registro
+            </button>
+        </form>
     </div>
-</div>
 
+    <script>
+        let transacoes = JSON.parse(localStorage.getItem('financas_pro_transacoes')) || [];
+        const mapeamentoCategorias = {
+            moradia: { icone: 'home', cor: 'text-amber-400', bg: 'bg-amber-500/10' },
+            mercado: { icone: 'shopping-cart', cor: 'text-sky-400', bg: 'bg-sky-500/10' },
+            transporte: { icone: 'car', cor: 'text-purple-400', bg: 'bg-purple-500/10' },
+            lazer: { icone: 'popcorn', cor: 'text-pink-400', bg: 'bg-pink-500/10' },
+            outros: { icone: 'help-circle', cor: 'text-slate-400', bg: 'bg-slate-500/10' },
+            receita: { icone: 'banknote', cor: 'text-emerald-400', bg: 'bg-emerald-500/10' }
+        };
+        const mesesNomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 
-        <table>
-    <thead>
-        <tr>
-         <th><input type="checkbox" id="select-all"></th>
-            <th>Nome</th>
-            <th>Telefone</th>
-            <th>Data de Vencimento</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
-    <tbody id="corpoTabela">
-<!-- Linhas de clientes adicionadas dinamicamente -->
-    </tbody>
-</table>
-    </div>
-    <script src="javascript/script.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-<footer>
-        © 2024 Produzido por <a href="https://wa.me/5581982258462?text=%2AOl%C3%A1%2C+fiquei+interessado+nesse+seu+aplicativo+web%2C+quanto+custa+%3F%2A"><strong>BRUNO-PEACE</strong></a>
-</footer>
+        const lista = document.getElementById('lista-transacoes');
+        const totalEntradasEl = document.getElementById('total-entradas');
+        const totalSaidasEl = document.getElementById('total-saidas');
+        const saldoTotalEl = document.getElementById('saldo-total');
+        const filtroMesAnoEl = document.getElementById('filtro-mes-ano');
+        const tipoInput = document.getElementById('tipo');
+        const categoriaInput = document.getElementById('categoria');
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const overlay = document.getElementById("trialOverlay");
-  const btnWhatsApp = document.getElementById("btnWhatsApp");
+        function alternarCategorias() {
+            if (tipoInput.value === 'entrada') {
+                categoriaInput.innerHTML = `<option value="receita" class="bg-slate-900">💰 Recebimento / Salário</option>`;
+            } else {
+                categoriaInput.innerHTML = `
+                    <option value="moradia" class="bg-slate-900">🏠 Moradia (Aluguel, Energia)</option>
+                    <option value="mercado" class="bg-slate-900">🛒 Mercado / Alimentação</option>
+                    <option value="transporte" class="bg-slate-900">🚗 Transporte (Combustível, Uber)</option>
+                    <option value="lazer" class="bg-slate-900">🍿 Lazer / Restaurantes</option>
+                    <option value="outros" class="bg-slate-900">✨ Outros</option>
+                `;
+            }
+        }
 
-  // 📲 Número de WhatsApp
-  const numeroWhatsApp = "5581982258462"; 
-  const mensagemWhatsApp = encodeURIComponent("Olá, quero renovar meu acesso ao aplicativo.");
+        function formatarMoeda(valor) { return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+        function obterMesChaveAtual() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; }
 
-  // 📌 Data e hora de expiração
-  const expDate = new Date("2025-09-29T09:16:00"); 
-  // formato: "AAAA-MM-DDTHH:mm:ss"
+        function inicializarFiltroMeses() {
+            const mesesSet = new Set();
+            mesesSet.add(obterMesChaveAtual());
+            transacoes.forEach(t => { if (t.mesChave) mesesSet.add(t.mesChave); });
+            const mesesOrdenados = Array.from(mesesSet).sort().reverse();
+            const valorSelecionadoAnterior = filtroMesAnoEl.value;
+            filtroMesAnoEl.innerHTML = '';
+            
+            mesesOrdenados.forEach(mesChave => {
+                const [ano, mes] = mesChave.split('-');
+                const option = document.createElement('option');
+                option.value = mesChave;
+                option.textContent = `${mesesNomes[parseInt(mes) - 1]} / ${ano}`;
+                option.className = "bg-slate-900";
+                filtroMesAnoEl.appendChild(option);
+            });
+            if (valorSelecionadoAnterior && mesesSet.has(valorSelecionadoAnterior)) {
+                filtroMesAnoEl.value = valorSelecionadoAnterior;
+            } else {
+                filtroMesAnoEl.value = obterMesChaveAtual();
+            }
+        }
 
-  // Função para verificar se já expirou
-  function verificarExpiracao() {
-    const agora = new Date();
-    if (agora >= expDate) {
-      overlay.style.display = "flex"; // bloqueia a tela
-    }
-  }
+        function atualizarResumos(transacoesFiltradas) {
+            const entradas = transacoesFiltradas.filter(t => t.tipo === 'entrada').reduce((acc, t) => acc + t.valor, 0);
+            const saidas = transacoesFiltradas.filter(t => t.tipo === 'saida').reduce((acc, t) => acc + t.valor, 0);
+            const saldo = entradas - saidas;
 
-  // Checa ao carregar
-  verificarExpiracao();
+            totalEntradasEl.textContent = formatarMoeda(entradas);
+            totalSaidasEl.textContent = formatarMoeda(saidas);
+            saldoTotalEl.textContent = formatarMoeda(saldo);
 
-  // ⏱️ Checa de 30 em 30 segundos (pode mudar para 1000 → 1 segundo)
-  setInterval(verificarExpiracao, 30000);
+            if (saldo < 0) { saldoTotalEl.className = "text-3xl font-extrabold text-rose-400 tracking-tight mb-4"; }
+            else if (saldo > 0) { saldoTotalEl.className = "text-3xl font-extrabold text-emerald-400 tracking-tight mb-4"; }
+            else { saldoTotalEl.className = "text-3xl font-extrabold text-white tracking-tight mb-4"; }
+        }
 
-  // Botão WhatsApp
-  btnWhatsApp.addEventListener("click", () => {
-    window.open(`https://wa.me/${numeroWhatsApp}?text=${mensagemWhatsApp}`, "_blank");
-  });
-});
-</script>
+        function renderizarLista(transacoesFiltradas) {
+            lista.innerHTML = '';
+            if (transacoesFiltradas.length === 0) {
+                lista.innerHTML = `<div class="flex flex-col items-center justify-center py-12 text-slate-500 text-sm"><i data-lucide="calendar-x" class="w-8 h-8 mb-2 stroke-[1.5]"></i>Nenhum registro neste mês.</div>`;
+                lucide.createIcons();
+                return;
+            }
+            [...transacoesFiltradas].reverse().forEach(t => {
+                const item = document.createElement('div');
+                item.className = "glass-card p-3.5 rounded-2xl flex justify-between items-center";
+                const eEntrada = t.tipo === 'entrada';
+                const catInfo = mapeamentoCategorias[t.categoria] || mapeamentoCategorias['outros'];
+                
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 rounded-xl ${catInfo.bg} ${catInfo.cor}"><i data-lucide="${catInfo.icone}" class="w-4 h-4"></i></div>
+                        <div><p class="text-sm font-medium text-slate-200">${t.descricao}</p><p class="text-[10px] text-slate-500">${t.data}</p></div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm font-semibold ${eEntrada ? 'text-emerald-400' : 'text-rose-400'}">${eEntrada ? '+' : '-'} ${formatarMoeda(t.valor)}</span>
+                        <button onclick="deletarTransacao(${t.id})" class="text-slate-500 hover:text-rose-400 p-1 rounded-lg hover:bg-white/5"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    </div>
+                `;
+                lista.appendChild(item);
+            });
+            lucide.createIcons();
+        }
+
+        function adicionarTransacao(event) {
+            event.preventDefault();
+            const descInput = document.getElementById('descricao');
+            const valorInput = document.getElementById('valor');
+            const dataAtual = new Date();
+            const dia = String(dataAtual.getDate()).padStart(2, '0');
+            const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+            const ano = dataAtual.getFullYear();
+            const mesChaveConstruida = `${ano}-${mes}`;
+
+            transacoes.push({
+                id: Date.now(),
+                descricao: descInput.value,
+                valor: parseFloat(valorInput.value),
+                tipo: tipoInput.value,
+                categoria: categoriaInput.value,
+                mesChave: mesChaveConstruida,
+                data: `${dia}/${mes}/${ano}`
+            });
+            salvarDados();
+            descInput.value = ''; valorInput.value = ''; descInput.focus();
+            inicializarFiltroMeses();
+            filtroMesAnoEl.value = mesChaveConstruida;
+            atualizarInterface();
+        }
+
+        function deletarTransacao(id) {
+            transacoes = transacoes.filter(t => t.id !== id);
+            salvarDados(); inicializarFiltroMeses(); atualizarInterface();
+        }
+
+        function limparTudo() {
+            const mesSelecionado = filtroMesAnoEl.value;
+            if (confirm(`Deseja apagar TODOS os registros deste mês selecionado?`)) {
+                transacoes = transacoes.filter(t => t.mesChave !== mesSelecionado);
+                salvarDados(); inicializarFiltroMeses(); atualizarInterface();
+            }
+        }
+
+        function salvarDados() { localStorage.setItem('financas_pro_transacoes', JSON.stringify(transacoes)); }
+        function atualizarInterface() {
+            const mesSelecionado = filtroMesAnoEl.value || obterMesChaveAtual();
+            const transacoesFiltradas = transacoes.filter(t => t.mesChave === mesSelecionado);
+            atualizarResumos(transacoesFiltradas); renderizarLista(transacoesFiltradas);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            inicializarFiltroMeses();
+            atualizarInterface();
+            
+            // Ativação do Service Worker do PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(() => console.log('✅ PWA: Ativo com sucesso!'))
+                    .catch(err => console.log('Erro ao registrar Service Worker:', err));
+            }
+        });
+    </script>
 </body>
 </html>
